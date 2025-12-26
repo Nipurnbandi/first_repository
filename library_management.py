@@ -1,18 +1,15 @@
 import sqlite3
+import os
 from datetime import date, timedelta, datetime
 
-
-
-
-
-
-
 # ------------------ DB CONNECTION ------------------
-connect = sqlite3.connect("new_library.db")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, "Library.db")
+
+connect = sqlite3.connect(db_path)   # ✅ use variable
 cursor = connect.cursor()
-cursor.execute("PRAGMA foreign_keys=ON")
+cursor.execute("PRAGMA foreign_keys = ON")
 # ------------------ DB CONNECTION ------------------
-
 
 
 
@@ -205,8 +202,9 @@ def issue_book(enrollment_no):
 
 # ------------------ MAIN ------------------
 def main():
+    insert_sample_data()
     
-
+    
     enrollment_no = input("Enter your enrollment number: ")
     show_student_details(enrollment_no)
 
@@ -222,12 +220,8 @@ def main():
         pass
     elif choice == 3:
         pass
-    
-    cursor.execute("SELECT * FROM published_books")
-    data=cursor.fetchall()
-    print(data)
 
-    connect.close()
+
 
 if __name__ == "__main__":
     main()
