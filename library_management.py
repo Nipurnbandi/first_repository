@@ -170,6 +170,31 @@ def show_student_details(enrollment_no):
         print(book_name,issued_date,renew_date)
 
     
+def renew_book(book_id,enrollment_no ):
+    cursor.execute(
+        "SELECT book_name,issued_date,renew_date FROM published_books WHERE book_id=?",
+        (book_id,)
+    )
+    data=cursor.fetchone()
+    if data is None:
+        print("Wrong book id")
+        return
+
+
+    new_date=str(date.today()+timedelta(days=15))
+    cursor.execute('''UPDATE published_books
+                    SET renew_date=? 
+                    WHERE book_id=?''',(new_date,book_id))
+    connect.commit()
+    print("published suecessfully")
+    cursor.execute(
+        "SELECT book_name,issued_date,renew_date FROM published_books WHERE enrollment_no=?",
+        (enrollment_no,)
+    )
+    data=cursor.fetchone()
+    if data is None:
+        print("Wrong book id or book is not published yet")
+
 
 
 
@@ -251,10 +276,7 @@ def main():
 
 
 
-    books_issued=no_of_book_issued(enrollment_no)
-    if books_issued==2:
-        print("Reached limit to publish books,already 2 books issued")
-        return
+
 
 
     print("\n1. Publish Book")
@@ -264,9 +286,16 @@ def main():
     choice = int(input("Enter your choice: "))
 
     if choice == 1:
+
+        books_issued=no_of_book_issued(enrollment_no)
+        if books_issued==2:
+            print("Reached limit to publish books,already 2 books issued")
+            return
+        
         issue_book(enrollment_no)
     elif choice == 2:
-        pass
+        book_id=input("Enter book ID:")
+        renew_book(book_id,enrollment_no)
     elif choice == 3:
         pass
 
