@@ -187,13 +187,7 @@ def renew_book(book_id,enrollment_no ):
                     WHERE book_id=?''',(new_date,book_id))
     connect.commit()
     print("published suecessfully")
-    cursor.execute(
-        "SELECT book_name,issued_date,renew_date FROM published_books WHERE enrollment_no=?",
-        (enrollment_no,)
-    )
-    data=cursor.fetchone()
-    if data is None:
-        print("Wrong book id or book is not published yet")
+
 
 
 
@@ -238,6 +232,34 @@ def issue_book(enrollment_no):
     except:
         connect.rollback()
         print("Transaction failed")
+
+
+
+def submit_book(book_id,enrollment_no):
+    cursor.execute("SELECT * FROM published_books WHERE book_id=?",(book_id,))
+    data=cursor.fetchone()
+    if data is None:
+        print("book id wrong or book wasnt issued from library")
+        return
+    
+    cursor.execute("DELETE FROM published_books WHERE book_id=?",(book_id,))
+    connect.commit()
+    cursor.execute('''UPDATE all_books
+                  SET is_issued=0
+                  WHERE book_id=?''',(book_id,))
+    connect.commit()
+    print("Book submited successfully")
+
+    cursor.execute(
+        "SELECT book_name,issued_date,renew_date FROM published_books WHERE enrollment_no=?",
+        (enrollment_no,)
+    )
+
+    
+    for book_name,issued_date,renew_date in cursor.fetchall():
+        print(book_name,issued_date,renew_date)
+    
+
 # ------------------ FUNCTIONS ------------------
 
 
@@ -288,7 +310,7 @@ def main():
     if choice == 1:
 
         books_issued=no_of_book_issued(enrollment_no)
-        if books_issued==2:
+        if books_issued==4:
             print("Reached limit to publish books,already 2 books issued")
             return
         
@@ -297,7 +319,9 @@ def main():
         book_id=input("Enter book ID:")
         renew_book(book_id,enrollment_no)
     elif choice == 3:
-        pass
+        book_id=input("Enter book ID:")
+        submit_book(book_id,enrollment_no)
+        
 
 
 
